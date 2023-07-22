@@ -219,10 +219,17 @@ export abstract class Mesh extends GraphicsResource {
    * @internal
    */
   _setVertexBufferBinding(index: number, binding: VertexBufferBinding): void {
+<<<<<<< HEAD
     if (this._getReferCount() > 0) {
       const lastBinding = this._vertexBufferBindings[index];
       lastBinding && lastBinding.buffer._addReferCount(-1);
       binding.buffer._addReferCount(1);
+=======
+    const referCount = this._getReferCount();
+    if (referCount > 0) {
+      this._vertexBufferBindings[index]?._buffer._addReferCount(-referCount);
+      binding?._buffer._addReferCount(referCount);
+>>>>>>> e34cb6a61b08324591392070a99bedbcb9833526
     }
     this._vertexBufferBindings[index] = binding;
     this._bufferStructChanged = true;
@@ -242,6 +249,7 @@ export abstract class Mesh extends GraphicsResource {
     for (let i = 0, n = vertexBufferBindings.length; i < n; i++) {
       vertexBufferBindings[i]?.buffer._addReferCount(value);
     }
+    this._indexBufferBinding?._buffer._addReferCount(value);
   }
 
   override _rebuild(): void {
@@ -275,6 +283,11 @@ export abstract class Mesh extends GraphicsResource {
    */
   protected _setIndexBufferBinding(binding: IndexBufferBinding | null): void {
     const lastBinding = this._indexBufferBinding;
+    const referCount = this._getReferCount();
+    if (referCount > 0) {
+      lastBinding?.buffer._addReferCount(-referCount);
+      binding?.buffer._addReferCount(referCount);
+    }
     if (binding) {
       this._indexBufferBinding = binding;
       this._glIndexType = BufferUtil._getGLIndexType(binding.format);

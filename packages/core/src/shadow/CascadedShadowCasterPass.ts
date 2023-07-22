@@ -111,10 +111,15 @@ export class CascadedShadowCasterPass {
     const lightSide = this._lightSide;
     const lightForward = shadowSliceData.virtualCamera.forward;
 
+<<<<<<< HEAD
     const sunLightIndex = scene._lightManager._getSunLightIndex();
 
     if (sunLightIndex !== -1) {
       const light = camera.scene._sunLight;
+=======
+    const light = camera.scene._sunLight;
+    if (light) {
+>>>>>>> e34cb6a61b08324591392070a99bedbcb9833526
       const shadowFar = Math.min(camera.scene.shadowDistance, camera.farClipPlane);
       this._getCascadesSplitDistance(shadowFar);
       // prepare render target
@@ -127,7 +132,7 @@ export class CascadedShadowCasterPass {
         rhi.clearRenderTarget(engine, CameraClearFlags.All, CascadedShadowCasterPass._clearColor);
       }
       this._shadowInfos.x = light.shadowStrength;
-      this._shadowInfos.z = sunLightIndex;
+      this._shadowInfos.z = 0; // @todo: sun light index always 0
 
       // prepare light and camera direction
       Matrix.rotationQuaternion(light.entity.transform.worldRotationQuaternion, lightWorld);
@@ -303,11 +308,13 @@ export class CascadedShadowCasterPass {
         depthTexture.depthCompareFunction = TextureDepthCompareFunction.Less;
       }
 
+      renderTarget?._addReferCount(-1);
       if (this._supportDepthTexture) {
         renderTarget = this._renderTargets = new RenderTarget(engine, width, height, null, depthTexture);
       } else {
         renderTarget = this._renderTargets = new RenderTarget(engine, width, height, depthTexture);
       }
+      renderTarget._addReferCount(1);
     }
     return renderTarget;
   }
@@ -343,7 +350,12 @@ export class CascadedShadowCasterPass {
         this._shadowMapSize.set(1.0 / width, 1.0 / height, width, height);
       }
 
-      this._renderTargets = null;
+      const renderTargets = this._renderTargets;
+      if (renderTargets) {
+        renderTargets._addReferCount(-1);
+        renderTargets.destroy();
+        this._renderTargets = null;
+      }
 
       const viewportOffset = this._viewportOffsets;
       const shadowTileResolution = this._shadowTileResolution;

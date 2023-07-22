@@ -103,6 +103,7 @@ export class SceneManager {
    * @internal
    */
   _destroyAllScene(): void {
+<<<<<<< HEAD
     const allCreatedScenes = this._allCreatedScenes;
     while (allCreatedScenes.length > 0) {
       allCreatedScenes[0].destroy();
@@ -125,5 +126,11 @@ export class SceneManager {
       this.removeScene(firstScene);
     }
     scene && this.addScene(0, scene);
+=======
+    const allScenes = this._allScenes;
+    while (allScenes[0]) {
+      allScenes[0].destroy();
+    }
+>>>>>>> e34cb6a61b08324591392070a99bedbcb9833526
   }
 }
